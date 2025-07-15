@@ -5,6 +5,8 @@ class PortalsSplashScreen {
     constructor() {
         this.progressFill = document.getElementById("progress-fill")
         this.progressPercentage = document.getElementById("progress-percentage")
+        this.splashScreen = document.getElementById("splash-screen")
+        // this.mainApp is no longer needed here as we are redirecting
         this.lottieAnimations = []
         this.lottieUrls = {
             skullflower: "https://nft.fragment.com/gift/skullflower-12626.lottie.json",
@@ -12,7 +14,7 @@ class PortalsSplashScreen {
             durovscap: "https://nft.fragment.com/gift/durovscap-1727.lottie.json",
             lollipop: "https://nft.fragment.com/gift/durovscap-2424.lottie.json",
             calendar: "https://nft.fragment.com/gift/starnotepad-8506.lottie.json",
-            deatnote: "https://nft.fragment.com/gift/deskcalendar-67890.lottie.json",
+            deathnote: "https://nft.fragment.com/gift/deskcalendar-67890.lottie.json", // Corrected typo
             cake: "https://nft.fragment.com/gift/deskcalendar-98765.lottie.json",
             sakura: "https://nft.fragment.com/gift/deskcalendar-11223.lottie.json",
         }
@@ -59,7 +61,8 @@ class PortalsSplashScreen {
             { id: "small-lottie-3", url: this.lottieUrls.durovscap },
             { id: "small-lottie-4", url: this.lottieUrls.calendar },
             { id: "small-lottie-5", url: this.lottieUrls.sakura },
-            { id: "small-lottie-6", url: this.lottieUrls.deathnote },
+            // Ensure small-lottie-6 exists in HTML if you want to load it
+            // { id: "small-lottie-6", url: this.lottieUrls.deathnote },
         ]
 
         smallLottieContainers.forEach((item) => {
@@ -98,6 +101,7 @@ class PortalsSplashScreen {
                     reject(new Error(`Failed to load: ${url}`))
                 })
 
+                // Fallback timeout in case DOMLoaded doesn't fire
                 setTimeout(() => {
                     if (animation.isLoaded) {
                         resolve(animation)
@@ -145,6 +149,7 @@ class PortalsSplashScreen {
     }
 
     navigateToMarketplace() {
+        // Redirect to marketplace.html
         window.location.href = "marketplace.html"
     }
 

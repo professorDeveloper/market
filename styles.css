@@ -27,11 +27,16 @@
     -webkit-tap-highlight-color: transparent; /* Disable tap highlight on mobile */
 }
 
+html,
+body {
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background: var(--color-dark-bg);
     color: var(--color-text-white);
-    overflow: hidden; /* Prevent scrollbars during loading */
+    overflow-y: hidden; /* Prevent scrollbars during loading, main-app handles it */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     touch-action: manipulation; /* Improve touch responsiveness */
@@ -106,6 +111,13 @@ body {
     background: var(--color-dark-bg);
     overflow: hidden;
     position: relative;
+    transition: opacity 0.5s ease-out, visibility 0.5s ease-out; /* For hiding splash */
+}
+
+.splash-screen.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
 }
 
 /* Central Lottie Animation (New "Magic" Lottie) */
@@ -313,10 +325,15 @@ body {
     overflow-y: auto; /* Enable scrolling for main content */
     -webkit-overflow-scrolling: touch;
     z-index: 100; /* Ensure it's above the background */
+    /* Removed opacity, visibility, and transition for immediate display on marketplace.html */
 }
 
-/* Floating NFT Cards (Background Elements for Marketplace) - REMOVED from HTML */
-/* .nft-cards-container is removed from marketplace.html */
+.main-app.visible {
+    /* This class is no longer needed for marketplace.html as main-app is always visible */
+    /* It might still be used by splash-script.js for the placeholder div in index.html */
+    opacity: 1;
+    visibility: visible;
+}
 
 /* Header (Marketplace) */
 .header {
@@ -330,7 +347,7 @@ body {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     border-bottom-left-radius: 1.5rem; /* Rounded corners for header */
     border-bottom-right-radius: 1.5rem;
-    transition: transform 0.1s linear, opacity 0.1s linear; /* Added for motion effect */
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out; /* Smooth transition for hide/show */
 }
 
 .top-bar {
@@ -421,6 +438,38 @@ body {
     background: var(--color-medium-gray);
 }
 
+/* New floating buttons */
+.header-right-buttons {
+    position: absolute;
+    top: 1rem; /* Adjust to align with top-bar */
+    right: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    z-index: 21; /* Ensure it's above other header content */
+}
+
+.gift-icon-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.new-badge {
+    position: absolute;
+    top: -5px; /* Adjust as needed */
+    right: -5px; /* Adjust as needed */
+    background-color: var(--color-pink); /* Or a bright red */
+    color: var(--color-text-white);
+    font-size: 0.6rem;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 9999px; /* Fully rounded */
+    z-index: 21; /* Above other elements */
+    white-space: nowrap;
+}
+
 /* Main Content Area (Marketplace) */
 .main-content-area {
     flex-grow: 1;
@@ -444,7 +493,7 @@ body {
     padding-bottom: 0.5rem;
     border-radius: 0.75rem;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    transition: transform 0.1s linear, opacity 0.1s linear, top 0.1s linear; /* Added for motion effect */
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out; /* Smooth transition for hide/show */
     display: flex;
     flex-direction: column; /* Stack search and filters vertically */
     gap: 0.75rem; /* Space between search and filters-row */
@@ -643,9 +692,6 @@ body {
     margin-bottom: 0;
 }
 
-/* Removed .nft-card-overlay-icon styles */
-/* All .nft-card-overlay-icon related styles are removed */
-
 .nft-details {
     flex-grow: 1;
     display: flex;
@@ -830,6 +876,25 @@ body {
     }
 }
 
+/* Loading Indicator for Infinite Scroll */
+.loading-indicator,
+.end-of-list-message {
+    display: none; /* Hidden by default, shown by JS */
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+}
+
+.loading-indicator .spinner {
+    width: 24px;
+    height: 24px;
+    animation: spin 1s linear infinite;
+    color: var(--color-accent-blue);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .main-lottie-container {
@@ -956,12 +1021,6 @@ body {
     }
     .footer-text {
         font-size: 0.65rem;
-    }
-
-    /* List view adjustments for small phones */
-    .nft-grid.list-view .nft-image-placeholder {
-        width: 90px;
-        height: 90px;
     }
 }
 
