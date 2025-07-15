@@ -5,17 +5,22 @@ class PortalsMarketplaceApp {
     constructor() {
         this.mainApp = document.getElementById("main-app")
         this.mainContentArea = document.getElementById("main-content-area")
+        this.mainHeader = document.getElementById("main-header") // Get the header element
+        this.filtersSearchArea = document.getElementById("filters-search-area") // Get the filters/search area
+        this.nftGrid = document.getElementById("nft-grid") // Get the NFT grid container
+        this.layoutToggleButton = document.getElementById("layout-toggle-button") // Get the layout toggle button
+        this.searchInput = document.getElementById("search-input") // Get the search input
         this.lottieAnimations = []
         this.nftGridItems = [] // To store NFT cards for scroll effects
+        this.isGridView = true // Initial layout state
         this.lottieUrls = {
             skullflower: "https://nft.fragment.com/gift/skullflower-12626.lottie.json",
             plushpepe: "https://nft.fragment.com/gift/plushpepe-1626.lottie.json",
             durovscap: "https://nft.fragment.com/gift/durovscap-1727.lottie.json",
-            lollipop: "https://nft.fragment.com/gift/lollipop-12345.lottie.json",
-            calendar: "https://nft.fragment.com/gift/calendar-67890.lottie.json",
-            sakura: "https://nft.fragment.com/gift/sakura-11223.lottie.json",
-            cake: "https://nft.fragment.com/gift/cake-98765.lottie.json",
-            // New Lottie for user icon (using skullflower as a placeholder)
+            lollipop: "https://nft.fragment.com/gift/heartlocket-876.lottie.json", // Updated URL
+            calendar: "https://nft.fragment.com/gift/deskcalendar-67890.lottie.json", // Updated URL
+            sakura: "https://nft.fragment.com/gift/sakuraflower-11223.lottie.json", // Updated URL
+            cake: "https://nft.fragment.com/gift/skullflower-8765.lottie.json", // Updated URL
             userIconLottie: "https://nft.fragment.com/gift/skullflower-12626.lottie.json", // Placeholder for custom user icon
         }
 
@@ -36,6 +41,7 @@ class PortalsMarketplaceApp {
         this.addMarketplaceContentEventListeners()
         this.setupScrollEffects()
         this.setupSwipeToRefresh()
+        this.updateLayoutButtonIcon() // Set initial icon for layout button
     }
 
     async loadHeaderLottieAnimations() {
@@ -154,22 +160,60 @@ class PortalsMarketplaceApp {
                 })
             }
         })
+
+        // Custom Dropdown Logic
+        document.querySelectorAll(".custom-dropdown").forEach((dropdown) => {
+            const header = dropdown.querySelector(".dropdown-header")
+            const content = dropdown.querySelector(".dropdown-content")
+
+            header.addEventListener("click", () => {
+                // Close other open dropdowns
+                document.querySelectorAll(".custom-dropdown .dropdown-content.open").forEach((openContent) => {
+                    if (openContent !== content) {
+                        openContent.classList.remove("open")
+                        openContent.previousElementSibling.querySelector("svg").style.transform = "rotate(0deg)"
+                    }
+                })
+
+                const isOpen = content.classList.toggle("open")
+                header.querySelector("svg").style.transform = isOpen ? "rotate(180deg)" : "rotate(0deg)"
+            })
+
+            content.querySelectorAll(".dropdown-item").forEach((item) => {
+                item.addEventListener("click", () => {
+                    header.querySelector("span").textContent = item.textContent
+                    content.classList.remove("open")
+                    header.querySelector("svg").style.transform = "rotate(0deg)"
+                    // You can add actual filter logic here based on item.dataset.value
+                    console.log(`Selected: ${item.dataset.value}`)
+                })
+            })
+
+            // Close dropdown if clicked outside
+            document.addEventListener("click", (event) => {
+                if (!dropdown.contains(event.target)) {
+                    content.classList.remove("open")
+                    header.querySelector("svg").style.transform = "rotate(0deg)"
+                }
+            })
+        })
+
+        // Layout Toggle Button Listener
+        if (this.layoutToggleButton) {
+            this.layoutToggleButton.addEventListener("click", this.toggleLayout.bind(this))
+        }
+
+        // Search Input Listener
+        if (this.searchInput) {
+            this.searchInput.addEventListener("input", (e) => {
+                console.log("Search query:", e.target.value)
+                // Implement actual search filtering logic here
+            })
+        }
     }
 
     addMarketplaceContentEventListeners() {
-        // Example: Cart progress update (can be tied to actual cart logic)
-        const cartProgressBar = document.querySelector(".cart-progress-fill")
-        const cartCount = document.querySelector(".cart-count")
-        if (cartProgressBar && cartCount) {
-            // Simulate cart update
-            let currentCartItems = 0
-            const maxCartItems = 10 // Example max
-            setInterval(() => {
-                currentCartItems = (currentCartItems + 1) % (maxCartItems + 1)
-                cartProgressBar.style.width = `${(currentCartItems / maxCartItems) * 100}%`
-                cartCount.textContent = currentCartItems.toString()
-            }, 2000)
-        }
+        // No longer simulating cart progress as the seekbar is removed.
     }
 
     // --- Scroll Motion Coordinator Effect ---
@@ -183,6 +227,7 @@ class PortalsMarketplaceApp {
                 if (!ticking) {
                     requestAnimationFrame(() => {
                         this.applyScrollEffects()
+                        this.applyHeaderAndFilterScrollEffect() // Apply effect to header and filter area
                         ticking = false
                     })
                     ticking = true
@@ -193,6 +238,7 @@ class PortalsMarketplaceApp {
 
         // Apply effects on initial load
         this.applyScrollEffects()
+        this.applyHeaderAndFilterScrollEffect()
     }
 
     applyScrollEffects() {
@@ -222,6 +268,59 @@ class PortalsMarketplaceApp {
         })
     }
 
+    applyHeaderAndFilterScrollEffect() {
+        if (!this.mainHeader || !this.filtersSearchArea) return
+
+        const scrollTop = this.mainApp.scrollTop
+        const headerHeight = this.mainHeader.offsetHeight
+        const filtersSearchAreaHeight = this.filtersSearchArea.offsetHeight
+
+        // Header scroll effect: hides as you scroll down
+        const headerScrollProgress = Math.min(scrollTop / headerHeight, 1)
+        this.mainHeader.style.transform = `translateY(-${headerScrollProgress * headerHeight}px)`
+        this.mainHeader.style.opacity = `${1 - headerScrollProgress * 0.5}` // Fade out slightly
+
+        // Filters search area sticky effect: stays at top once header is hidden
+        // It should hide with the header, then stick to the top.
+        // Calculate how much of the filters/search area should be hidden
+        const combinedHeight = headerHeight + filtersSearchAreaHeight
+        const scrollProgressCombined = Math.min(scrollTop / combinedHeight, 1)
+
+        // The filtersSearchArea should move up with the header, but only until it reaches the top.
+        // Once the header is fully hidden, the filtersSearchArea should stick.
+        // The `top` property is already handled by CSS `position: sticky`.
+        // We need to adjust its `transform` based on scroll.
+        if (scrollTop > headerHeight) {
+            this.filtersSearchArea.style.transform = `translateY(-${scrollTop - headerHeight}px)`
+            this.filtersSearchArea.style.opacity = "1" // Keep full opacity when sticky
+        } else {
+            this.filtersSearchArea.style.transform = `translateY(0px)`
+            this.filtersSearchArea.style.opacity = `${1 - headerScrollProgress * 0.5}` // Fade out with header
+        }
+    }
+
+    // --- Layout Toggle ---
+    toggleLayout() {
+        this.isGridView = !this.isGridView
+        if (this.isGridView) {
+            this.nftGrid.classList.remove("list-view")
+        } else {
+            this.nftGrid.classList.add("list-view")
+        }
+        this.updateLayoutButtonIcon()
+        // Re-apply scroll effects to ensure correct positioning/scaling for new layout
+        this.applyScrollEffects()
+    }
+
+    updateLayoutButtonIcon() {
+        if (this.layoutToggleButton) {
+            const iconSvg = this.isGridView
+                ? `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-grid-3x3"><path d="M10 2v20"/><path d="M14 2v20"/><path d="M2 14h20"/><path d="M2 10h20"/></svg>`
+                : `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>`
+            this.layoutToggleButton.innerHTML = iconSvg
+        }
+    }
+
     // --- Swipe to Refresh ---
     setupSwipeToRefresh() {
         if (!this.ptrElement) return
@@ -236,16 +335,19 @@ class PortalsMarketplaceApp {
         this.mainApp.style.transition = "" // Remove transition for immediate response
         this.ptrElement.style.transition = ""
         this.ptrElement.style.opacity = "0"
-        this.ptrElement.style.transform = "translateY(-100%)"
+        this.ptrElement.style.transform = "translateY(-100%)" // Ensure it's hidden initially
     }
 
     handleTouchMove(e) {
         this.currentY = e.touches[0].clientY
         const diff = this.currentY - this.startY
 
+        // Only activate if at the very top of the scroll and pulling down
         if (this.mainApp.scrollTop === 0 && diff > 0 && !this.isRefreshing) {
             e.preventDefault() // Prevent scrolling when pulling down from top
             const pullDistance = Math.min(diff / 2, this.pullThreshold * 1.5) // Apply damping
+
+            // Adjust transform to bring it into view from above
             this.ptrElement.style.transform = `translateY(${pullDistance - this.ptrElement.offsetHeight}px)`
             this.ptrElement.style.opacity = `${pullDistance / this.pullThreshold}`
 
@@ -271,7 +373,7 @@ class PortalsMarketplaceApp {
 
             this.performRefresh()
         } else {
-            this.ptrElement.style.transform = "translateY(-100%)"
+            this.ptrElement.style.transform = "translateY(-100%)" // Hide it again
             this.ptrElement.style.opacity = "0"
             this.ptrElement.classList.remove("release")
         }

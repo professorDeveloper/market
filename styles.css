@@ -330,6 +330,7 @@ body {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     border-bottom-left-radius: 1.5rem; /* Rounded corners for header */
     border-bottom-right-radius: 1.5rem;
+    transition: transform 0.1s linear, opacity 0.1s linear; /* Added for motion effect */
 }
 
 .top-bar {
@@ -435,53 +436,127 @@ body {
 /* Filters and Search Area */
 .filters-search-area {
     margin-bottom: 1rem;
+    position: sticky;
+    top: 0; /* Will be dynamically set by JS for motion effect */
+    z-index: 15; /* Above NFT grid, below header */
+    background: var(--color-dark-bg); /* Ensure it has a background when sticky */
+    padding-top: 0.5rem; /* Small padding to prevent content from touching header */
+    padding-bottom: 0.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    transition: transform 0.1s linear, opacity 0.1s linear, top 0.1s linear; /* Added for motion effect */
+    display: flex;
+    flex-direction: column; /* Stack search and filters vertically */
+    gap: 0.75rem; /* Space between search and filters-row */
+}
+
+.search-input-container {
+    position: relative;
+    width: 100%;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    padding-right: 2.5rem; /* Space for icon */
+    background: var(--color-button-bg);
+    border: 1px solid var(--color-medium-gray);
+    border-radius: 0.75rem;
+    color: var(--color-text-white);
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-input::placeholder {
+    color: var(--color-text-muted);
+}
+
+.search-input:focus {
+    border-color: var(--color-accent-blue);
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.3);
+}
+
+.search-input-container svg {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-muted);
+    pointer-events: none; /* Allow clicks to pass through to input */
 }
 
 .filters-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    display: flex; /* Use flex for horizontal layout */
+    flex-wrap: wrap; /* Allow items to wrap on smaller screens */
     gap: 0.75rem;
-    margin-bottom: 0.75rem;
     align-items: center;
 }
 
-.filter-select {
-    background: var(--color-filter-bg); /* Darker background for filter selects */
-    border-radius: 0.75rem; /* More rounded corners */
-    padding: 0.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+/* Custom Dropdown Styles */
+.custom-dropdown {
+    position: relative;
+    flex-grow: 1; /* Allow dropdowns to take available space */
+    min-width: 120px; /* Minimum width for dropdowns */
+    background: var(--color-filter-bg);
+    border-radius: 0.75rem;
     border: 1px solid var(--color-medium-gray);
+    cursor: pointer;
+    user-select: none;
 }
 
-.filter-select .custom-select {
+.custom-dropdown .dropdown-header {
     background: transparent;
     border: none;
     padding: 0.5rem 0.75rem;
-    flex-grow: 1;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     color: var(--color-text-white);
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
+    font-size: 0.9rem;
+    font-weight: 500;
     cursor: pointer;
 }
 
-.filter-select .custom-select:focus {
-    outline: none;
+.custom-dropdown .dropdown-header svg {
+    transition: transform 0.2s ease;
 }
 
-.filter-select .select-arrows {
-    display: flex;
-    flex-direction: column;
-    gap: 0px;
-    padding-right: 0.5rem;
+.custom-dropdown .dropdown-content {
+    position: absolute;
+    top: calc(100% + 5px); /* Slightly below the header */
+    left: 0;
+    width: 100%;
+    background: var(--color-filter-bg);
+    border: 1px solid var(--color-medium-gray);
+    border-top: none;
+    border-radius: 0 0 0.75rem 0.75rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transition: max-height 0.3s ease-out, opacity 0.3s ease-out, visibility 0.3s ease-out;
+    z-index: 100; /* Ensure dropdown is above other content */
 }
 
-.filter-select .select-arrows svg {
-    width: 16px;
-    height: 16px;
-    color: var(--color-text-muted);
+.custom-dropdown .dropdown-content.open {
+    max-height: 200px; /* Adjust as needed */
+    opacity: 1;
+    visibility: visible;
+}
+
+.custom-dropdown .dropdown-item {
+    padding: 0.75rem;
+    color: var(--color-text-white);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.custom-dropdown .dropdown-item:hover {
+    background-color: var(--color-medium-gray);
 }
 
 .button-icon-square {
@@ -497,6 +572,7 @@ body {
     cursor: pointer;
     transition: background-color 0.2s ease, border-color 0.2s ease;
     position: relative;
+    flex-shrink: 0; /* Prevent buttons from shrinking */
 }
 
 .button-icon-square:hover {
@@ -504,46 +580,19 @@ body {
     border-color: var(--color-medium-gray);
 }
 
-.cart-summary-row {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    background: var(--color-filter-bg); /* Darker background for cart summary */
-    border-radius: 0.75rem; /* More rounded corners */
-    padding: 0.5rem 1rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.cart-summary-row svg {
-    color: var(--color-text-white);
-}
-
-.cart-progress-bar {
-    flex-grow: 1;
-    height: 8px;
-    background: var(--color-medium-gray);
-    border-radius: 9999px;
-    overflow: hidden;
-}
-
-.cart-progress-fill {
-    height: 100%;
-    background: var(--color-accent-blue);
-    border-radius: 9999px;
-    width: 0%; /* Controlled by JS */
-    transition: width 0.2s ease-out;
-}
-
-.cart-count {
-    font-weight: 600;
-    color: var(--color-text-white);
-}
-
-/* NFT Grid - List Layout */
+/* NFT Grid - Grid Layout */
 .nft-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Responsive columns, slightly larger */
+    gap: 1rem; /* Space between grid items */
+    transition: grid-template-columns 0.3s ease-in-out, flex-direction 0.3s ease-in-out;
+}
+
+/* NFT Grid - List View */
+.nft-grid.list-view {
     display: flex;
     flex-direction: column;
-    gap: 1rem; /* Space between list items */
+    gap: 1rem;
 }
 
 .nft-item-card {
@@ -554,10 +603,11 @@ body {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     cursor: pointer;
     position: relative;
-    display: flex; /* Use flex for horizontal layout */
-    align-items: center; /* Align items vertically in the center */
-    text-align: left; /* Align text to the left */
-    width: 100%; /* Take full width */
+    display: flex; /* Use flex for internal stacking */
+    flex-direction: column; /* Stack image and details vertically */
+    align-items: center; /* Center content horizontally */
+    text-align: center; /* Center text */
+    width: 100%; /* Take full width of grid cell */
 }
 
 .nft-item-card:hover {
@@ -565,106 +615,82 @@ body {
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5), 0 0 30px rgba(168, 85, 247, 0.2);
 }
 
+/* Adjust NFT card for list view */
+.nft-grid.list-view .nft-item-card {
+    flex-direction: row; /* Horizontal layout for list view */
+    text-align: left;
+    padding: 1rem;
+}
+
 .nft-image-placeholder {
-    width: 100px; /* Fixed width for image in list view */
-    height: 100px; /* Fixed height for image in list view */
+    width: 100%; /* Take full width of card */
+    height: 180px; /* Fixed height for image in grid view, adjusted for better visibility */
     border-radius: 0.5rem;
-    margin-right: 0.75rem; /* Space between image and text */
-    flex-shrink: 0; /* Prevent shrinking */
+    margin-bottom: 0.75rem; /* Space below image */
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     position: relative;
-    /* Removed explicit background colors to let Lottie provide the visual */
 }
 
-/* New style for Lottie containers within NFT cards */
-.lottie-nft-container {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+/* Adjust image placeholder for list view */
+.nft-grid.list-view .nft-image-placeholder {
+    width: 100px; /* Smaller fixed width for list view */
+    height: 100px; /* Smaller fixed height for list view */
+    margin-right: 1rem;
+    margin-bottom: 0;
 }
+
+/* Removed .nft-card-overlay-icon styles */
+/* All .nft-card-overlay-icon related styles are removed */
 
 .nft-details {
-    flex-grow: 1; /* Allow details to take remaining space */
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center; /* Center text within details */
+    width: 100%; /* Take full width */
 }
 
-.nft-image {
-    width: 100%;
-    height: 100%;
-    object-fit: contain; /* Ensure image fits without cropping */
-    z-index: 2; /* Above background pattern */
-}
-
-.nft-card-overlay-icon {
-    position: absolute;
-    background: rgba(0, 0, 0, 0.6);
-    border-radius: 0.5rem; /* More squared corners for icons */
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--color-text-white);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-    z-index: 3;
-}
-
-.nft-card-overlay-icon.top-left {
-    top: 0.5rem;
-    left: 0.5rem;
-}
-
-.nft-card-overlay-icon.top-right {
-    top: 0.5rem;
-    right: 0.5rem;
-}
-
-.nft-card-overlay-icon.bottom-left {
-    bottom: 0.5rem;
-    left: 0.5rem;
-}
-
-.nft-card-overlay-icon.bottom-right {
-    bottom: 0.5rem;
-    right: 0.5rem;
-}
-
-.nft-card-overlay-icon.new-tag {
-    background-color: #ff0000; /* Red for NEW tag */
-    font-size: 0.7rem;
-    font-weight: bold;
-    padding: 0.2rem 0.4rem;
-    border-radius: 0.5rem;
-    width: auto; /* Allow width to adjust to text */
-    height: auto;
+/* Adjust NFT details for list view */
+.nft-grid.list-view .nft-details {
+    align-items: flex-start; /* Align text to start for list view */
 }
 
 .nft-name {
     font-weight: 600;
     color: var(--color-text-white);
-    margin-top: 0; /* Adjusted for list layout */
+    margin-top: 0;
     margin-bottom: 0.25rem;
     font-size: 0.95rem;
+    text-align: center; /* Center text */
+}
+
+/* Adjust NFT name for list view */
+.nft-grid.list-view .nft-name {
+    text-align: left;
 }
 
 .nft-id {
     font-size: 0.8rem;
     color: var(--color-text-muted);
     margin-bottom: 0.75rem;
+    text-align: center; /* Center text */
+}
+
+/* Adjust NFT ID for list view */
+.nft-grid.list-view .nft-id {
+    text-align: left;
 }
 
 .nft-price-button {
     background: var(--color-accent-blue);
     color: var(--color-text-white);
     border: none;
-    border-radius: 0.75rem; /* More rounded corners */
+    border-radius: 0.75rem;
     padding: 0.5rem 1rem;
     font-size: 0.9rem;
     font-weight: 600;
@@ -675,12 +701,20 @@ body {
     justify-content: center; /* Center content */
     gap: 0.25rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    width: auto; /* Auto width for list button */
-    align-self: flex-start; /* Align to start in flex column */
+    width: calc(100% - 0.5rem); /* Full width minus card padding */
+    margin-top: 0.75rem; /* Space above button */
+    margin-bottom: 0.25rem; /* Small margin at bottom */
 }
 
 .nft-price-button:hover {
     background: var(--color-dark-blue);
+}
+
+/* Adjust price button for list view */
+.nft-grid.list-view .nft-price-button {
+    width: auto; /* Allow button to size based on content */
+    align-self: flex-start; /* Align to start for list view */
+    margin-top: 0.5rem;
 }
 
 .currency-text {
@@ -749,7 +783,7 @@ body {
 /* Pull to Refresh Indicator */
 .pull-to-refresh-indicator {
     position: absolute;
-    top: 0;
+    top: 0; /* Position at the very top */
     left: 0;
     width: 100%;
     height: 60px; /* Height of the indicator */
@@ -760,10 +794,13 @@ body {
     color: var(--color-text-muted);
     font-size: 0.9rem;
     font-weight: 500;
-    transform: translateY(-100%); /* Hidden by default */
+    transform: translateY(-100%); /* Hidden by default, moved up by its full height */
     opacity: 0;
     transition: transform 0.3s ease-out, opacity 0.3s ease-out;
-    z-index: 5; /* Below header, above main content */
+    z-index: 25; /* Ensure it's above header and filters */
+    border-bottom-left-radius: 0.75rem;
+    border-bottom-right-radius: 0.75rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 .pull-to-refresh-indicator svg {
@@ -816,8 +853,7 @@ body {
         padding: 0.5rem;
     }
     .nft-image-placeholder {
-        width: 80px;
-        height: 80px;
+        height: 160px; /* Adjusted for better mobile visibility */
     }
     .nft-name {
         font-size: 0.9rem;
@@ -828,9 +864,21 @@ body {
     .nft-price-button {
         font-size: 0.85rem;
     }
+
+    /* List view adjustments for smaller tablets */
+    .nft-grid.list-view .nft-image-placeholder {
+        width: 120px;
+        height: 120px;
+    }
 }
 
 @media (max-width: 480px) {
+    .nft-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Ensure items are large enough */
+    }
+    .nft-image-placeholder {
+        height: 150px; /* Adjusted for better mobile visibility */
+    }
     .main-lottie-container {
         width: 120px;
         height: 120px;
@@ -872,19 +920,22 @@ body {
         height: 36px;
     }
     .filters-row {
-        grid-template-columns: 1fr;
+        flex-direction: column; /* Stack filters vertically on very small screens */
+        align-items: stretch; /* Stretch items to fill width */
+    }
+    .custom-dropdown,
+    .button-icon-square {
+        width: 100%; /* Full width for stacked items */
+        min-width: unset; /* Remove min-width constraint */
     }
     .button-icon-square {
-        width: 36px;
-        height: 36px;
+        height: 40px; /* Maintain height for buttons */
     }
     .nft-item-card {
         padding: 0.5rem;
     }
     .nft-image-placeholder {
-        width: 70px;
-        height: 70px;
-        margin-right: 0.5rem;
+        height: 140px; /* Adjusted for better mobile visibility */
     }
     .nft-name {
         font-size: 0.8rem;
@@ -905,6 +956,12 @@ body {
     }
     .footer-text {
         font-size: 0.65rem;
+    }
+
+    /* List view adjustments for small phones */
+    .nft-grid.list-view .nft-image-placeholder {
+        width: 90px;
+        height: 90px;
     }
 }
 
